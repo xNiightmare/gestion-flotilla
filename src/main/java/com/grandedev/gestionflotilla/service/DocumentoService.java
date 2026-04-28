@@ -5,9 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
-//I <3 Ariana Grande <3 <3 AG8 <3
+
 import org.springframework.stereotype.Service;
 
+import com.grandedev.gestionflotilla.dto.DocumentoDTO;
+import com.grandedev.gestionflotilla.mapper.Mapper;
 import com.grandedev.gestionflotilla.model.Camion;
 import com.grandedev.gestionflotilla.model.Documento;
 import com.grandedev.gestionflotilla.model.Operador;
@@ -16,7 +18,7 @@ import com.grandedev.gestionflotilla.repository.DocumentoRepository;
 import com.grandedev.gestionflotilla.repository.OperadorRepository;
 
 @Service
-public class DocumentoService {
+public class DocumentoService implements IDocumentoService{
     private final DocumentoRepository documentoRepository;
     private final OperadorRepository operadorRepository;
     private final CamionRepository camionRepository;
@@ -28,98 +30,105 @@ public class DocumentoService {
         this.camionRepository = camionRepository;
     }
 
-    public Documento buscarDocumentoPorId(Long id) {
+    private Documento buscarDocumentoEntidadPorId(Long id) {
         return this.documentoRepository
             .findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Documento con id: " + id + " no ha sido encontrado"));
     }
 
-    public Documento crearDocumento(Documento nuevoDocumento) {
-        return this.documentoRepository.save(nuevoDocumento);
+    @Override
+    public DocumentoDTO buscarDocumentoPorId(Long id) {
+        return Mapper.toDocumentoDTO(this.buscarDocumentoEntidadPorId(id));
     }
 
-    public List<Documento> listarDocumentos() {
-        return this.documentoRepository.findAll();
+    @Override
+    public DocumentoDTO crearDocumento(DocumentoDTO nuevoDocumento) {
+        Documento documento = Mapper.toDocumento(nuevoDocumento);
+        asignarRelaciones(documento, nuevoDocumento.getIdOperador(), nuevoDocumento.getIdCamion());
+
+        if (documento.getFechaSubida() == null) {
+            documento.setFechaSubida(LocalDateTime.now());
+        }
+
+        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
     }
 
-    public Documento actualizarDocumento(Documento documentoActualizado, Long id) {
-        return this.documentoRepository
-            .findById(id)
-            .map(documento -> {
-                //documento.setFechaSubida(documentoActualizado.getFechaSubida());
-                documento.setNombreArchivo(documentoActualizado.getNombreArchivo());
-                documento.setRutaArchivo(documentoActualizado.getRutaArchivo());
-                documento.setTipoDocumento(documentoActualizado.getTipoDocumento());
-
-                return this.documentoRepository.save(documento);
-            })
-            .orElseThrow(() -> new IllegalArgumentException("Documento con id: " + id + " no ha sido encontrado"));
+    @Override
+    public List<DocumentoDTO> listarDocumentos() {
+        return this.documentoRepository.findAll().stream().map(Mapper::toDocumentoDTO).toList();
     }
 
+    @Override
+    public DocumentoDTO actualizarDocumento(DocumentoDTO documentoActualizado, Long id) {
+        Documento documento = this.buscarDocumentoEntidadPorId(id);
+        documento.setNombreArchivo(documentoActualizado.getNombreArchivo());
+        documento.setRutaArchivo(documentoActualizado.getRutaArchivo());
+        documento.setTipoDocumento(documentoActualizado.getTipoDocumento());
+        asignarRelaciones(documento, documentoActualizado.getIdOperador(), documentoActualizado.getIdCamion());
+
+        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
+    }
+
+    @Override
     public boolean documentoExistePorId(Long id) {
         return this.documentoRepository.existsById(id);
     }
 
-    public List<Documento> listarDocumentosPorOperador(Long operadorId) {
+    @Override
+    public List<DocumentoDTO> listarDocumentosPorOperador(Long operadorId) {
         this.operadorRepository
             .findById(operadorId)
             .orElseThrow(() -> new IllegalArgumentException("Operador con id: " + operadorId + " no ha sido encontrado"));
 
-        return this.documentoRepository.findByOperadorId(operadorId);
+        return this.documentoRepository.findByOperadorId(operadorId).stream().map(Mapper::toDocumentoDTO).toList();
     }
 
-    public List<Documento> listarDocumentoPorCamion(Long camionId) {
+    @Override
+    public List<DocumentoDTO> listarDocumentoPorCamion(Long camionId) {
         this.camionRepository
             .findById(camionId)
             .orElseThrow(() -> new IllegalArgumentException("Camion con id: " + camionId + " no ha sido encontrado"));
 
-        return this.documentoRepository.findByCamionId(camionId);
+        return this.documentoRepository.findByCamionId(camionId).stream().map(Mapper::toDocumentoDTO).toList();
     }
 
-    public Documento asignarDocumentoAOperador(Long documentoId, Long operadorId) {
-        Documento documento = this.buscarDocumentoPorId(documentoId);
+    @Override
+    public DocumentoDTO asignarDocumentoAOperador(Long documentoId, Long operadorId) {
+        Documento documento = this.buscarDocumentoEntidadPorId(documentoId);
         Operador operador = this.operadorRepository
             .findById(operadorId)
             .orElseThrow(() -> new IllegalArgumentException("Operador con id: " + operadorId + " no ha sido encontrado"));
 
         documento.setOperador(operador);
-        return this.documentoRepository.save(documento);
+        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
     }
 
-    public Documento asignarDocumentoACamion(Long documentoId, Long camionId) {
-        Documento documento = this.buscarDocumentoPorId(documentoId);
+    @Override
+    public DocumentoDTO asignarDocumentoACamion(Long documentoId, Long camionId) {
+        Documento documento = this.buscarDocumentoEntidadPorId(documentoId);
         Camion camion = this.camionRepository
             .findById(camionId)
             .orElseThrow(() -> new IllegalArgumentException("Camion con id: " + camionId + " no ha sido encontrado"));
 
         documento.setCamion(camion);
-        return this.documentoRepository.save(documento);
+        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
     }
 
-    public Documento registrarSubidaDocumento(Documento nuevoDocumento, Long operadorId, Long camionId) {
-        if (operadorId != null) {
-            Operador operador = this.operadorRepository
-                .findById(operadorId)
-                .orElseThrow(() -> new IllegalArgumentException("Operador con id: " + operadorId + " no ha sido encontrado"));
-            nuevoDocumento.setOperador(operador);
+    @Override
+    public DocumentoDTO registrarSubidaDocumento(DocumentoDTO nuevoDocumento, Long operadorId, Long camionId) {
+        Documento documento = Mapper.toDocumento(nuevoDocumento);
+        asignarRelaciones(documento, operadorId, camionId);
+
+        if (documento.getFechaSubida() == null) {
+            documento.setFechaSubida(LocalDateTime.now());
         }
 
-        if (camionId != null) {
-            Camion camion = this.camionRepository
-                .findById(camionId)
-                .orElseThrow(() -> new IllegalArgumentException("Camion con id: " + camionId + " no ha sido encontrado"));
-            nuevoDocumento.setCamion(camion);
-        }
-
-        if (nuevoDocumento.getFechaSubida() == null) {
-            nuevoDocumento.setFechaSubida(LocalDateTime.now());
-        }
-
-        return this.documentoRepository.save(nuevoDocumento);
+        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
     }
 
+    @Override
     public void eliminarDocumentoFisicoYLogico(Long documentoId) {
-        Documento documento = this.buscarDocumentoPorId(documentoId);
+        Documento documento = this.buscarDocumentoEntidadPorId(documentoId);
 
         if (documento.getRutaArchivo() != null && !documento.getRutaArchivo().isBlank()) {
             try {
@@ -131,5 +140,20 @@ public class DocumentoService {
 
         this.documentoRepository.delete(documento);
     }
-    
+
+    private void asignarRelaciones(Documento documento, Long operadorId, Long camionId) {
+        if (operadorId != null) {
+            Operador operador = this.operadorRepository
+                .findById(operadorId)
+                .orElseThrow(() -> new IllegalArgumentException("Operador con id: " + operadorId + " no ha sido encontrado"));
+            documento.setOperador(operador);
+        }
+
+        if (camionId != null) {
+            Camion camion = this.camionRepository
+                .findById(camionId)
+                .orElseThrow(() -> new IllegalArgumentException("Camion con id: " + camionId + " no ha sido encontrado"));
+            documento.setCamion(camion);
+        }
+    }
 }

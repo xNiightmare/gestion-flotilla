@@ -12,6 +12,7 @@ public class CamionDTO {
     private Long id;
     private Long idOperador;
     private String marca;
+    private String version;
     private String motor;
     private int anio;
     private String serie;

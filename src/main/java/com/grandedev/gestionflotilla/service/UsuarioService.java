@@ -1,49 +1,67 @@
 package com.grandedev.gestionflotilla.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.grandedev.gestionflotilla.dto.UsuarioDTO;
+import com.grandedev.gestionflotilla.dto.UsuarioRequestDTO;
+import com.grandedev.gestionflotilla.dto.UsuarioResponseDTO;
 import com.grandedev.gestionflotilla.mapper.Mapper;
 import com.grandedev.gestionflotilla.model.Usuario;
 import com.grandedev.gestionflotilla.repository.UsuarioRepository;
-
-import java.util.List;
 
 @Service
 public class UsuarioService implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder; //Para cifrar la contrasenia
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder){
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public List<UsuarioDTO> traerUsuarios(){
-        return usuarioRepository.findAll().stream().map(Mapper::toUsuarioDTO).toList();
+    public List<UsuarioResponseDTO> traerUsuarios() {
+        return usuarioRepository.findAll().stream().map(Mapper::toUsuarioResponseDTO).toList();
     }
 
     @Override
-    public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO){
-
-        Usuario usuario = Usuario.builder()
-                .username(usuarioDTO.getUsername())
-                .password(usuarioDTO.getPassword()) //TODO: Implementar medida de seguridad para password
-                .rol(usuarioDTO.getRol())
-                .build();
-            return Mapper.toUsuarioDTO(usuarioRepository.save(usuario));
-    }
-    
-    @Override
-    public UsuarioDTO actualizarUsuario(Long id, UsuarioDTO usuarioDTO){
-        return null;
+    public UsuarioResponseDTO buscarUsuarioPorId(Long id) {
+        return Mapper.toUsuarioResponseDTO(this.buscarUsuarioEntidadPorId(id));
     }
 
     @Override
-    public void eliminarUsuario(Long id){
-        System.out.println("Saass sasa sale de volada!!!");
+    public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO usuarioRequestDTO) {
+        Usuario usuario = Mapper.toUsuario(usuarioRequestDTO);
+        usuario.setPassword(passwordEncoder.encode(usuarioRequestDTO.getPassword()));
+
+        return Mapper.toUsuarioResponseDTO(usuarioRepository.save(usuario));
+    }
+
+    @Override
+    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
+        Usuario usuario = this.buscarUsuarioEntidadPorId(id);
+        usuario.setUsername(usuarioRequestDTO.getUsername());
+        usuario.setRol(usuarioRequestDTO.getRol());
+
+        if (usuarioRequestDTO.getPassword() != null && !usuarioRequestDTO.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(usuarioRequestDTO.getPassword()));
+        }
+
+        return Mapper.toUsuarioResponseDTO(usuarioRepository.save(usuario));
+    }
+
+    @Override
+    public void eliminarUsuario(Long id) {
+        this.buscarUsuarioEntidadPorId(id);
+        this.usuarioRepository.deleteById(id);
+    }
+
+    private Usuario buscarUsuarioEntidadPorId(Long id) {
+        return this.usuarioRepository
+            .findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario con id: " + id + " no encontrado"));
     }
 }
