@@ -15,9 +15,7 @@ import com.grandedev.gestionflotilla.model.Usuario;
 public class Mapper {
 
     public static UsuarioResponseDTO toUsuarioResponseDTO(Usuario usuario) {
-        if (usuario == null) {
-            return null;
-        }
+        if (usuario == null) return null;
 
         return UsuarioResponseDTO.builder()
             .id(usuario.getId())

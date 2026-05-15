@@ -2,6 +2,8 @@ package com.grandedev.gestionflotilla.dto;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.util.List;
 
@@ -12,8 +14,11 @@ import java.util.List;
 public class OperadorDTO {
 
     private Long id;
+    @NotBlank(message = "Nombre requerido")
     private String nombre;
+    @NotBlank(message = "Licencia requerida")
     private String licencia;
+    @NotNull
     private LocalDate vencimientoLicencia;
 
     private List<DocumentoDTO> documentos; //Basado en los enums

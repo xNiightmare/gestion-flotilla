@@ -2,6 +2,9 @@ package com.grandedev.gestionflotilla.service;
 
 import java.util.List;
 
+import com.grandedev.gestionflotilla.exception.ResourceNotFoundException;
+import com.grandedev.gestionflotilla.exception.UsernameAlreadyExistsException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,10 @@ public class UsuarioService implements IUsuarioService {
 
     @Override
     public UsuarioResponseDTO crearUsuario(UsuarioRequestDTO usuarioRequestDTO) {
+        if(this.usuarioRepository.findByUsername(usuarioRequestDTO.getUsername()).isPresent())
+            throw new UsernameAlreadyExistsException("Nombre de usuario NO disponible. Intenta con otro.");
+        //Keep it simple, saassssale de volada
+
         Usuario usuario = Mapper.toUsuario(usuarioRequestDTO);
         usuario.setPassword(passwordEncoder.encode(usuarioRequestDTO.getPassword()));
 
@@ -62,6 +69,8 @@ public class UsuarioService implements IUsuarioService {
     private Usuario buscarUsuarioEntidadPorId(Long id) {
         return this.usuarioRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Usuario con id: " + id + " no encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("404 Error: User not found with ID: " + id));
     }
+
+
 }

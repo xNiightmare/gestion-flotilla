@@ -2,6 +2,9 @@ package com.grandedev.gestionflotilla.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,27 +29,29 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public List<UsuarioResponseDTO> listarUsuarios() {
-        return this.usuarioService.traerUsuarios();
-    }
+    public ResponseEntity<List<UsuarioResponseDTO>> listarUsuarios(){return ResponseEntity.ok(this.usuarioService.traerUsuarios());}
 
     @PostMapping
-    public UsuarioResponseDTO crearUsuario(@RequestBody UsuarioRequestDTO usuarioRequestDTO) {
-        return this.usuarioService.crearUsuario(usuarioRequestDTO);
+    public ResponseEntity<UsuarioResponseDTO> crearUsuario(
+            @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(usuarioService.crearUsuario(usuarioRequestDTO));
     }
 
     @GetMapping("/{id}")
-    public UsuarioResponseDTO buscarUsuarioPorId(@PathVariable Long id) {
-        return this.usuarioService.buscarUsuarioPorId(id);
+    public ResponseEntity<UsuarioResponseDTO> buscarUsuarioPorId(@PathVariable Long id){
+        return ResponseEntity.ok(this.usuarioService.buscarUsuarioPorId(id));
     }
 
     @PutMapping("/{id}")
-    public UsuarioResponseDTO actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioRequestDTO usuarioRequestDTO) {
-        return this.usuarioService.actualizarUsuario(id, usuarioRequestDTO);
+    public ResponseEntity<UsuarioResponseDTO> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UsuarioRequestDTO usuarioRequestDTO){
+        return ResponseEntity.ok(this.usuarioService.actualizarUsuario(id, usuarioRequestDTO));
     }
 
     @DeleteMapping("/{id}")
-    public void eliminarUsuario(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id){
         this.usuarioService.eliminarUsuario(id);
+        return ResponseEntity.noContent().build();
     }
 }

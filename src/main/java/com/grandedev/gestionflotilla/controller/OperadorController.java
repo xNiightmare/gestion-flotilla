@@ -2,6 +2,9 @@ package com.grandedev.gestionflotilla.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,27 +27,28 @@ public class OperadorController {
     }
 
     @GetMapping
-    List<OperadorDTO> obtenerOperadores() {
-        return this.operadorService.listarOperadores();
-    }
+    ResponseEntity<List<OperadorDTO>> obtenerOperadores(){return ResponseEntity.ok(this.operadorService.listarOperadores());}
 
     @PostMapping
-    OperadorDTO nuevoOperador(@RequestBody OperadorDTO operador) {
-        return this.operadorService.crearOperador(operador);
-    }
+    public ResponseEntity<OperadorDTO> crearOperador(
+            @Valid @RequestBody OperadorDTO operadorDTO
+    ){return ResponseEntity.status(HttpStatus.CREATED)
+            .body(this.operadorService.crearOperador(operadorDTO));}
+
 
     @GetMapping("/{id}")
-    OperadorDTO obtenerOperadorPorId(@PathVariable Long id) {
-        return this.operadorService.buscarOperadorPorId(id);
+    public ResponseEntity<OperadorDTO> buscarOperadorPorId(@PathVariable Long id){
+        return ResponseEntity.ok(this.operadorService.buscarOperadorPorId(id));
     }
 
     @PutMapping("/{id}")
-    OperadorDTO actualizarOperador(@PathVariable Long id, @RequestBody OperadorDTO operador) {
-        return this.operadorService.actualizarOperador(id, operador);
+    public ResponseEntity<OperadorDTO> actualizarOperador(@PathVariable Long id, @Valid @RequestBody OperadorDTO operadorDTO){
+        return ResponseEntity.ok(this.operadorService.actualizarOperador(id,operadorDTO));
     }
 
-    @DeleteMapping("/{operadorId}")
-    public void eliminarOperadorPorId(@PathVariable Long operadorId) {
-        this.operadorService.eliminarOperadorPorId(operadorId);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarOperadorPorId(@PathVariable Long id){
+        this.operadorService.eliminarOperadorPorId(id);
+        return ResponseEntity.noContent().build();
     }
 }

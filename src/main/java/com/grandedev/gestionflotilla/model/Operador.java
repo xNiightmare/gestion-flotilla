@@ -28,12 +28,9 @@ public class Operador {
     private LocalDate vencimientoLicencia;
 
     @OneToMany(mappedBy = "operador", cascade = CascadeType.ALL, orphanRemoval = true)
-    //@JoinColumn(name="operador_id")
-    private List<Documento> documentos; //= new ArrayList<>();
+    private List<Documento> documentos;
 
     private String nss; 
     private String rfc; 
-    private String curp; 
-
-    //private String ine; TipoDocumento
+    private String curp;
 }
