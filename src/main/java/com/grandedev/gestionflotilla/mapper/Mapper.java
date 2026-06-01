@@ -11,6 +11,8 @@ import com.grandedev.gestionflotilla.model.Camion;
 import com.grandedev.gestionflotilla.model.Documento;
 import com.grandedev.gestionflotilla.model.Operador;
 import com.grandedev.gestionflotilla.model.Usuario;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 public class Mapper {
 

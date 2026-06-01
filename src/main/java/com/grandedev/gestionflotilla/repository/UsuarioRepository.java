@@ -10,3 +10,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>
 {
     Optional<Usuario> findByUsername(String username);
 }
+//Primero hay que definir una interfaz repositorio en el dominio.
+//Esto controla las operaciones que tienen sentido para el problema que se resuelve.
