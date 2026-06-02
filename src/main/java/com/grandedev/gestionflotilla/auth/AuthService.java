@@ -1,7 +1,7 @@
 package com.grandedev.gestionflotilla.auth;
 
 import com.grandedev.gestionflotilla.login.LoginRequestDTO;
-import com.grandedev.gestionflotilla.security.JwtService;
+import com.grandedev.gestionflotilla.config.JwtService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 

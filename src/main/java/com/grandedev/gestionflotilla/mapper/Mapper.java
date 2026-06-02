@@ -33,6 +33,7 @@ public class Mapper {
 
         return Usuario.builder()
             .username(usuarioRequestDTO.getUsername())
+            .email(usuarioRequestDTO.getEmail())
             .password(usuarioRequestDTO.getPassword())
             .rol(usuarioRequestDTO.getRol())
             .build();

@@ -18,6 +18,9 @@ public class UsuarioRequestDTO {
     @Size(min = 8, message = "La contrasenia por lo menos debe tener 8 caracteres")
     private String password;
 
+    @NotBlank(message = "Email requerido")
+    private String email;
+
     @NotNull(message = "El ROL es necesario")
     private Rol rol; //o con string, dependiendo de cómo quieras manejarlo en el DTO
 }

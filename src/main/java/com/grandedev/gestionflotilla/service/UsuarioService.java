@@ -2,6 +2,7 @@ package com.grandedev.gestionflotilla.service;
 
 import java.util.List;
 
+import com.grandedev.gestionflotilla.exception.EmailAlreadyExistsException;
 import com.grandedev.gestionflotilla.exception.ResourceNotFoundException;
 import com.grandedev.gestionflotilla.exception.UsernameAlreadyExistsException;
 
@@ -40,6 +41,9 @@ public class UsuarioService implements IUsuarioService {
         if(this.usuarioRepository.findByUsername(usuarioRequestDTO.getUsername()).isPresent())
             throw new UsernameAlreadyExistsException("Nombre de usuario NO disponible. Intenta con otro.");
         //Keep it simple, saassssale de volada
+        if(this.usuarioRepository.findByEmail(usuarioRequestDTO.getEmail()).isPresent())
+            throw new EmailAlreadyExistsException("El email que intentas proporcionar se encuentra en uso. " +
+                    "Prueba con otro.");
 
         Usuario usuario = Mapper.toUsuario(usuarioRequestDTO);
         usuario.setPassword(passwordEncoder.encode(usuarioRequestDTO.getPassword()));

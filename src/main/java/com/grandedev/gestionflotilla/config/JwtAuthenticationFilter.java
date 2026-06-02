@@ -1,4 +1,4 @@
-package com.grandedev.gestionflotilla.security;
+package com.grandedev.gestionflotilla.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,12 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain chain
     ) throws ServletException, IOException {
         //Extracts and validates JWT from Authorization header
-        String token = request.getHeader("Authorization");
-        if(token != null && token.startsWith("Bearer ")){
-            token = token.substring(7);
-            if(jwtService.validateToken(token)){
-                String username = jwtService.getUserNameFromToken(token);
-                String role = jwtService.getRoleFromToken(token);
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        if(authHeader != null && authHeader.startsWith("Bearer ")){
+            jwt = authHeader.substring(7);
+            if(jwtService.validateToken(jwt)){
+                String username = jwtService.getUserNameFromToken(jwt);
+                String role = jwtService.getRoleFromToken(jwt);
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role);
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         username, null, Collections.singletonList(authority)
@@ -47,3 +48,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 //A custom filter that intercepts requests, validates JWT tokens,
 //and sets authentication in the security context.
+//Our token always must starts with the keyword Bearer

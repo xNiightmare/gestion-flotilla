@@ -12,6 +12,7 @@ public class SecretKeyProperties {
 
     private String secretKey;
     private long expirationTime;
+    private long refreshTime;
 
 
 }
