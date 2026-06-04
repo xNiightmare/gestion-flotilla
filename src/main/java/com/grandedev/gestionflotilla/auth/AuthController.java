@@ -1,7 +1,7 @@
 package com.grandedev.gestionflotilla.auth;
 
-import com.grandedev.gestionflotilla.dto.UsuarioRequestDTO;
-import com.grandedev.gestionflotilla.config.JwtService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,16 +10,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 //REST controller para la autenticacion de endpoints
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtService jwtTokenService;
+    private final AuthService authService;
 
-    AuthController(JwtService jwtTokenService){ this.jwtTokenService = jwtTokenService;}
+    @PostMapping("/register")
+    public ResponseEntity<AuthenticationResponse> register(
+            @Valid @RequestBody RegisterRequest request
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UsuarioRequestDTO usuarioRequestDTO){
+    ){
+        return ResponseEntity.ok(authService.register(request));
+    }
 
-
-    } //Esto no puede ni debe estar aqui, viola la arquitectura seguida y pierde sentido toda la seguridad.
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> authenticate(
+            @Valid @RequestBody AuthenticationRequest request
+    ){
+        return ResponseEntity.ok(authService.authenticate(request));
+    }
 }

@@ -18,7 +18,7 @@ import com.grandedev.gestionflotilla.dto.OperadorDTO;
 import com.grandedev.gestionflotilla.service.OperadorService;
 
 @RestController
-@RequestMapping("/operadores")
+@RequestMapping("/api/v1/operadores")
 public class OperadorController {
     private final OperadorService operadorService;
 

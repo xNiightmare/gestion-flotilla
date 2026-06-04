@@ -18,7 +18,7 @@ import com.grandedev.gestionflotilla.dto.DocumentoDTO;
 import com.grandedev.gestionflotilla.service.DocumentoService;
 
 @RestController
-@RequestMapping("/documentos")
+@RequestMapping("/api/v1/documentos")
 public class DocumentoController {
 
     private final DocumentoService documentoService;

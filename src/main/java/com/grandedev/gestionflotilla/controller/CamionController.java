@@ -18,7 +18,7 @@ import com.grandedev.gestionflotilla.dto.CamionDTO;
 import com.grandedev.gestionflotilla.service.CamionService;
 
 @RestController
-@RequestMapping("/camiones")
+@RequestMapping("/api/v1/camiones")
 public class CamionController {
     private final CamionService camionService;
 

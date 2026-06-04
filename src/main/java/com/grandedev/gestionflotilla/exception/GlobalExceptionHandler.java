@@ -42,6 +42,18 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<CustomErrorResponse> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex){
+        CustomErrorResponse errorResponse = new CustomErrorResponse(
+                409,
+                ex.getMessage(),
+                "El email no se encuentra disponible.",
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<CustomErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex){

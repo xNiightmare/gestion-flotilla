@@ -19,7 +19,7 @@ import com.grandedev.gestionflotilla.dto.UsuarioResponseDTO;
 import com.grandedev.gestionflotilla.service.UsuarioService;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/v1/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
