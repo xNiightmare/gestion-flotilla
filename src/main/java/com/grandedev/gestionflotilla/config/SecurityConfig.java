@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -11,11 +12,23 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.grandedev.gestionflotilla.model.Permission.OPERADOR_READ;
+import static com.grandedev.gestionflotilla.model.Permission.ADMIN_READ;
+import static org.springframework.http.HttpMethod.*;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity // Enforced by Spring Security to trigger @PreAuthorize
 public class SecurityConfig {
 
+    private static final String[] ADMIN_LIST_URL = {"/api/v1/camiones/**",
+            "/api/v1/documentos/**",
+            "/api/v1/operadores/**",
+            "/api/v1/usuarios/**"};
+    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**"
+
+    };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
@@ -24,8 +37,14 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable) //Se cambio csrf -> csrf.disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(POST, ADMIN_LIST_URL).hasRole("ADMIN")
+                        .requestMatchers(PUT, ADMIN_LIST_URL).hasRole("ADMIN")
+                        .requestMatchers(DELETE,ADMIN_LIST_URL).hasRole("ADMIN")
+                        .requestMatchers(GET, "/api/v1/documentos").hasAuthority(ADMIN_READ.name())
+                        .requestMatchers(GET,"/api/v1/documentos/operadores").hasAuthority(OPERADOR_READ.name())
+                        .anyRequest()
+                        .authenticated()
                 )
                 .sessionManagement(sess -> sess
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -36,3 +55,6 @@ public class SecurityConfig {
     }
 
 }
+
+//spring security @preauthorize
+//spring security @preauthorize by id
