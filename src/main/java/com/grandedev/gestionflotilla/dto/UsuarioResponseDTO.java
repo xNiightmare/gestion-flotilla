@@ -10,5 +10,6 @@ import lombok.*;
 public class UsuarioResponseDTO {
     private Long id;
     private String username;
+    private Long idOperador;
     private Rol rol; //o con string, dependiendo de cómo quieras manejarlo en el DTO
 }

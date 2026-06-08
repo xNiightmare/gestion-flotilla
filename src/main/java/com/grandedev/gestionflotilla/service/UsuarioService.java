@@ -6,6 +6,8 @@ import com.grandedev.gestionflotilla.exception.EmailAlreadyExistsException;
 import com.grandedev.gestionflotilla.exception.ResourceNotFoundException;
 import com.grandedev.gestionflotilla.exception.UsernameAlreadyExistsException;
 
+import com.grandedev.gestionflotilla.model.Operador;
+import com.grandedev.gestionflotilla.repository.OperadorRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +22,12 @@ public class UsuarioService implements IUsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OperadorRepository operadorRepository;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, OperadorRepository operadorRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.operadorRepository = operadorRepository;
     }
 
     @Override
@@ -46,6 +50,7 @@ public class UsuarioService implements IUsuarioService {
                     "Prueba con otro.");
 
         Usuario usuario = Mapper.toUsuario(usuarioRequestDTO);
+        asignarRelacion(usuario, usuarioRequestDTO.getIdOperador());
         usuario.setPassword(passwordEncoder.encode(usuarioRequestDTO.getPassword()));
 
         return Mapper.toUsuarioResponseDTO(usuarioRepository.save(usuario));
@@ -55,6 +60,7 @@ public class UsuarioService implements IUsuarioService {
     public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
         Usuario usuario = this.buscarUsuarioEntidadPorId(id);
         usuario.setUsername(usuarioRequestDTO.getUsername());
+        asignarRelacion(usuario, usuarioRequestDTO.getIdOperador());
         usuario.setRol(usuarioRequestDTO.getRol());
 
         if (usuarioRequestDTO.getPassword() != null && !usuarioRequestDTO.getPassword().isBlank()) {
@@ -76,5 +82,14 @@ public class UsuarioService implements IUsuarioService {
             .orElseThrow(() -> new ResourceNotFoundException("404 Error: User not found with ID: " + id));
     }
 
+    private void asignarRelacion(Usuario usuario, Long operadorId){
+        if(operadorId != null){
+            Operador operador =
+                    this.operadorRepository
+                            .findById(operadorId)
+                            .orElseThrow(() -> new ResourceNotFoundException("404 Error: Operador no encontrado con ID: " + operadorId));
+            usuario.setOperador(operador);
+        }
+    }
 
 }

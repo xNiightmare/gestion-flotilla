@@ -53,7 +53,7 @@ public class DocumentoController {
     }
 
     @GetMapping("/operadores/{operadorId}")
-    @PreAuthorize("#operadorId == authentication.principal.id")
+    @PreAuthorize("hasRole('ADMIN') or #operadorId == authentication.principal.operador.id")
     public ResponseEntity<List<DocumentoDTO>> listarDocumentoPorOperador(@PathVariable Long operadorId){
         return ResponseEntity.ok(this.documentoService.listarDocumentosPorOperador(operadorId));
     }

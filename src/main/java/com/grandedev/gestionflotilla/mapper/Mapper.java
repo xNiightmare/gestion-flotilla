@@ -11,8 +11,6 @@ import com.grandedev.gestionflotilla.model.Camion;
 import com.grandedev.gestionflotilla.model.Documento;
 import com.grandedev.gestionflotilla.model.Operador;
 import com.grandedev.gestionflotilla.model.Usuario;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 public class Mapper {
 
@@ -22,6 +20,7 @@ public class Mapper {
         return UsuarioResponseDTO.builder()
             .id(usuario.getId())
             .username(usuario.getUsername())
+            .idOperador(usuario.getOperador() != null ? usuario.getOperador().getId() : null)
             .rol(usuario.getRol())
             .build();
     }

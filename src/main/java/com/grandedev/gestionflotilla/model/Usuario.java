@@ -29,6 +29,10 @@ public class Usuario implements UserDetails {
     @Column(unique = true)
     private String email;
 
+    @OneToOne
+    @JoinColumn(name="operador_id")
+    private Operador operador;
+
     @Enumerated(EnumType.STRING)
     private Rol rol;
 
