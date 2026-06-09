@@ -2,9 +2,11 @@ package com.grandedev.gestionflotilla.controller;
 
 import java.util.List;
 
+import com.grandedev.gestionflotilla.resetPassword.ResetPasswordDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,4 +56,10 @@ public class UsuarioController {
         this.usuarioService.eliminarUsuario(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<UsuarioResponseDTO> resetearContrasenia(@PathVariable Long id, @Valid @RequestBody ResetPasswordDTO resetPasswordDTO){
+        return ResponseEntity.ok(this.usuarioService.resetearContrasenia(id, resetPasswordDTO));
+    }
+
 }

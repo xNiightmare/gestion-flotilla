@@ -39,6 +39,10 @@ public class Documento {
 
     private LocalDateTime fechaSubida;
 
+    private Long tamanioArchivo;
+
+    private String mimeType;
+
     @ManyToOne //Lado propietario
     @JoinColumn(name = "operador_id")
     private Operador operador;

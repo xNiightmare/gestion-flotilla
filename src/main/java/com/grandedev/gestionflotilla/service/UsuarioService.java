@@ -8,6 +8,7 @@ import com.grandedev.gestionflotilla.exception.UsernameAlreadyExistsException;
 
 import com.grandedev.gestionflotilla.model.Operador;
 import com.grandedev.gestionflotilla.repository.OperadorRepository;
+import com.grandedev.gestionflotilla.resetPassword.ResetPasswordDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +76,16 @@ public class UsuarioService implements IUsuarioService {
         this.buscarUsuarioEntidadPorId(id);
         this.usuarioRepository.deleteById(id);
     }
+
+    @Override
+    public UsuarioResponseDTO resetearContrasenia(Long id, ResetPasswordDTO resetPasswordDTO){
+        Usuario usuario = this.buscarUsuarioEntidadPorId(id);
+        usuario.setPassword(passwordEncoder.encode(resetPasswordDTO.getNuevaPassword()));
+
+        return Mapper.toUsuarioResponseDTO(usuarioRepository.save(usuario));
+
+    }
+
 
     private Usuario buscarUsuarioEntidadPorId(Long id) {
         return this.usuarioRepository
