@@ -6,6 +6,8 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.grandedev.gestionflotilla.fileManager.LocalFileStorageService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.grandedev.gestionflotilla.dto.DocumentoDTO;
@@ -22,12 +24,16 @@ public class DocumentoService implements IDocumentoService{
     private final DocumentoRepository documentoRepository;
     private final OperadorRepository operadorRepository;
     private final CamionRepository camionRepository;
+    private final LocalFileStorageService storageService;
 
-    public DocumentoService(DocumentoRepository documentoRepository, OperadorRepository operadorRepository,
-            CamionRepository camionRepository) {
+    public DocumentoService(DocumentoRepository documentoRepository,
+                            OperadorRepository operadorRepository,
+                            CamionRepository camionRepository,
+                            LocalFileStorageService storageService) {
         this.documentoRepository = documentoRepository;
         this.operadorRepository = operadorRepository;
         this.camionRepository = camionRepository;
+        this.storageService = storageService;
     }
 
     private Documento buscarDocumentoEntidadPorId(Long id) {
@@ -42,32 +48,10 @@ public class DocumentoService implements IDocumentoService{
     }
 
     @Override
-    public DocumentoDTO crearDocumento(DocumentoDTO nuevoDocumento) {
-        Documento documento = Mapper.toDocumento(nuevoDocumento);
-        asignarRelaciones(documento, nuevoDocumento.getIdOperador(), nuevoDocumento.getIdCamion());
-
-        if (documento.getFechaSubida() == null) {
-            documento.setFechaSubida(LocalDateTime.now());
-        }
-
-        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
-    }
-
-    @Override
     public List<DocumentoDTO> listarDocumentos() {
         return this.documentoRepository.findAll().stream().map(Mapper::toDocumentoDTO).toList();
     }
 
-    @Override
-    public DocumentoDTO actualizarDocumento(DocumentoDTO documentoActualizado, Long id) {
-        Documento documento = this.buscarDocumentoEntidadPorId(id);
-        documento.setNombreArchivo(documentoActualizado.getNombreArchivo());
-        documento.setRutaArchivo(documentoActualizado.getRutaArchivo());
-        documento.setTipoDocumento(documentoActualizado.getTipoDocumento());
-        asignarRelaciones(documento, documentoActualizado.getIdOperador(), documentoActualizado.getIdCamion());
-
-        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
-    }
 
     @Override
     public boolean documentoExistePorId(Long id) {
@@ -115,24 +99,16 @@ public class DocumentoService implements IDocumentoService{
     }
 
     @Override
-    public DocumentoDTO registrarSubidaDocumento(DocumentoDTO nuevoDocumento, Long operadorId, Long camionId) {
-        Documento documento = Mapper.toDocumento(nuevoDocumento);
-        asignarRelaciones(documento, operadorId, camionId);
-
-        if (documento.getFechaSubida() == null) {
-            documento.setFechaSubida(LocalDateTime.now());
-        }
-
-        return Mapper.toDocumentoDTO(this.documentoRepository.save(documento));
-    }
-
-    @Override
+    @Transactional
     public void eliminarDocumentoFisicoYLogico(Long documentoId) {
-        Documento documento = this.buscarDocumentoEntidadPorId(documentoId);
+        Documento documento =
+                this.buscarDocumentoEntidadPorId(documentoId);
 
         if (documento.getRutaArchivo() != null && !documento.getRutaArchivo().isBlank()) {
             try {
-                Files.deleteIfExists(Path.of(documento.getRutaArchivo()));
+                storageService.deleteFile(
+                        documento.getRutaArchivo()
+                );
             } catch (IOException e) {
                 throw new IllegalStateException("No se pudo eliminar el archivo del documento con id: " + documentoId, e);
             }
@@ -141,19 +117,5 @@ public class DocumentoService implements IDocumentoService{
         this.documentoRepository.delete(documento);
     }
 
-    private void asignarRelaciones(Documento documento, Long operadorId, Long camionId) {
-        if (operadorId != null) {
-            Operador operador = this.operadorRepository
-                .findById(operadorId)
-                .orElseThrow(() -> new IllegalArgumentException("Operador con id: " + operadorId + " no ha sido encontrado"));
-            documento.setOperador(operador);
-        }
 
-        if (camionId != null) {
-            Camion camion = this.camionRepository
-                .findById(camionId)
-                .orElseThrow(() -> new IllegalArgumentException("Camion con id: " + camionId + " no ha sido encontrado"));
-            documento.setCamion(camion);
-        }
-    }
 }

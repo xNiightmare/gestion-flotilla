@@ -1,50 +1,42 @@
 package com.grandedev.gestionflotilla.controller;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.grandedev.gestionflotilla.fileManager.FileService;
+import com.grandedev.gestionflotilla.model.TipoDocumento;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.grandedev.gestionflotilla.dto.DocumentoDTO;
 import com.grandedev.gestionflotilla.service.DocumentoService;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/documentos")
 public class DocumentoController {
 
     private final DocumentoService documentoService;
+    private final FileService fileService;
 
-    DocumentoController(DocumentoService documentoService) {
+    DocumentoController(DocumentoService documentoService,
+                        FileService fileService) {
         this.documentoService = documentoService;
+        this.fileService = fileService;
     }
 
     @GetMapping
     ResponseEntity<List<DocumentoDTO>> listarDocumentos(){return ResponseEntity.ok(this.documentoService.listarDocumentos());}
 
-    @PostMapping
-    public ResponseEntity<DocumentoDTO> nuevoDocumento(
-            @Valid @RequestBody DocumentoDTO documentoDTO
-    ){return  ResponseEntity.status(HttpStatus.CREATED)
-            .body(this.documentoService.crearDocumento(documentoDTO));}
-
     @GetMapping("/{id}")
     public ResponseEntity<DocumentoDTO> obtenerDocumentoPorId(@PathVariable Long id){
         return ResponseEntity.ok(this.documentoService.buscarDocumentoPorId(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<DocumentoDTO> actualizarDocumento(@Valid @RequestBody DocumentoDTO documentoDTO,@PathVariable Long id){
-        return ResponseEntity.ok(this.documentoService.actualizarDocumento(documentoDTO,id));
     }
 
     @GetMapping("/camiones/{camionId}")
@@ -58,21 +50,22 @@ public class DocumentoController {
         return ResponseEntity.ok(this.documentoService.listarDocumentosPorOperador(operadorId));
     }
 
-    @PutMapping("/{documentoId}/operadores/{operadorId}")
-    public ResponseEntity<DocumentoDTO> asignarDocumentoAOperador(@PathVariable Long documentoId, @PathVariable Long operadorId){
-        return ResponseEntity.ok(this.documentoService.asignarDocumentoAOperador(documentoId, operadorId));
-    }
+    @GetMapping("/{id}/download")
+    public ResponseEntity<Resource> descargarDocumento(@PathVariable Long id){
+        try {
+            DocumentoDTO dto = documentoService.buscarDocumentoPorId(id);
+            Resource resource = fileService.getFileResource(id);
 
-    @PutMapping("/{documentoId}/camiones/{camionId}")
-    public ResponseEntity<DocumentoDTO> asignarDocumentoACamion(@PathVariable Long documentoId, @PathVariable Long camionId){
-        return ResponseEntity.ok(this.documentoService.asignarDocumentoACamion(documentoId, camionId));
-    }
-
-    @PostMapping("/operadores/{operadorId}/camiones/{camionId}")
-    public ResponseEntity<DocumentoDTO> registrarSubidaDeDocumento(@Valid @RequestBody DocumentoDTO nuevoDocumento,
-           @PathVariable Long operadorId, @PathVariable Long camionId) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(this.documentoService.registrarSubidaDocumento(nuevoDocumento, operadorId, camionId));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + dto.getNombreArchivo() + "\""
+                    )
+                    .contentType(MediaType.parseMediaType(dto.getMimeType()))
+                    .contentLength(dto.getTamanioArchivo())
+                    .body(resource);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @DeleteMapping("/{documentoId}")
@@ -80,4 +73,34 @@ public class DocumentoController {
         this.documentoService.eliminarDocumentoFisicoYLogico(documentoId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping(
+            value ="/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DocumentoDTO> uploadDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam TipoDocumento tipoDocumento,
+            @RequestParam(required = false) Long operadorId,
+            @RequestParam(required = false) Long camionId){
+
+        try{
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(
+                            this.fileService.uploadFile(file,
+                                                        tipoDocumento,
+                                                        operadorId,
+                                                        camionId)
+                    );
+
+
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+    }
+
+
 }

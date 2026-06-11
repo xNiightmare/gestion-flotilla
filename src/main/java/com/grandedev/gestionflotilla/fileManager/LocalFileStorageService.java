@@ -28,11 +28,10 @@ public class LocalFileStorageService {
 
     public String storeFile(InputStream inputStream, String originalName) throws IOException {
         LocalDate today = LocalDate.now();
-        Path dateDirectory = rootPath.resolve(
-                today.getYear() + File.separator +
-                        String.format("%02d", today.getMonthValue() + File.separator +
-                        String.format("%02d", today.getDayOfMonth()))
-        );
+        Path dateDirectory = rootPath
+                .resolve(String.valueOf(today.getYear()))
+                .resolve(String.format("%02d",today.getMonthValue()))
+                .resolve(String.format("%02d",today.getDayOfMonth()));
 
         Files.createDirectories(dateDirectory);
         String ext = getFileExtension(originalName);
@@ -49,9 +48,9 @@ public class LocalFileStorageService {
 
     public Resource getFileResource(String storedPath) throws IOException{
         Path filePath = rootPath.resolve(storedPath).normalize().toAbsolutePath();
-        Path normalizedRooth = rootPath.normalize().toAbsolutePath();
+        Path normalizedRoot = rootPath.normalize().toAbsolutePath();
 
-        if(!filePath.startsWith(normalizedRooth)){
+        if(!filePath.startsWith(normalizedRoot)){
             throw new SecurityException("Acceso denegado!!");
         }
 
@@ -61,6 +60,24 @@ public class LocalFileStorageService {
 
         return new UrlResource(filePath.toUri());
     }
+
+    public void deleteFile(String storedPath) throws IOException{
+        Path filePath = rootPath
+                .resolve(storedPath)
+                .normalize()
+                .toAbsolutePath();
+
+        Path normalizeRoot = rootPath.normalize()
+                                    .toAbsolutePath();
+
+        if(!filePath.startsWith(normalizeRoot)){
+            throw new SecurityException("Acceso denegado!!");
+        }
+
+        Files.deleteIfExists(filePath);
+
+    }
+
     private String getFileExtension(String fileName){
         int lastDot = fileName.lastIndexOf(".");
         return lastDot == -1 ? "": fileName.substring(lastDot + 1);
