@@ -79,14 +79,14 @@ public class FileService {
             throw new IllegalArgumentException("Archivo vacio!!");
         }
 
-        if(file.getSize() > properties.maxFileSize()){
+        if(file.getSize() > properties.getMaxFileSize()){
             throw new IllegalArgumentException(
                     "Archivo excede el tamaño permitido"
             );
         }
 
         String mimeType = file.getContentType();
-        if(mimeType == null || !properties.allowedMimeTypes().contains(mimeType)){
+        if(mimeType == null || !properties.getAllowedMimeTypes().contains(mimeType)){
             throw new IllegalArgumentException("tipo mime invalido!!!");
         }
     }

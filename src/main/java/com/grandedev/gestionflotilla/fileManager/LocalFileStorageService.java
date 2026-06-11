@@ -23,7 +23,7 @@ public class LocalFileStorageService {
 
     public LocalFileStorageService(FileStorageProperties properties){
         this.properties = properties;
-        this.rootPath = Paths.get(properties.basePath());
+        this.rootPath = Paths.get(properties.getBasePath());
     }
 
     public String storeFile(InputStream inputStream, String originalName) throws IOException {
@@ -42,7 +42,9 @@ public class LocalFileStorageService {
             StreamUtils.copy(inputStream,outputStream);
         }
 
-        return rootPath.relativize(filePath).toString();
+        return rootPath
+                .relativize(filePath)
+                .toString().replace("\\","/");
 
     }
 
