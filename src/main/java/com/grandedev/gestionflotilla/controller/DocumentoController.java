@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.grandedev.gestionflotilla.fileManager.FileService;
 import com.grandedev.gestionflotilla.model.TipoDocumento;
-import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,22 +49,22 @@ public class DocumentoController {
         return ResponseEntity.ok(this.documentoService.listarDocumentosPorOperador(operadorId));
     }
 
-    @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> descargarDocumento(@PathVariable Long id){
-        try {
-            DocumentoDTO dto = documentoService.buscarDocumentoPorId(id);
-            Resource resource = fileService.getFileResource(id);
+    @GetMapping("/{docId}/download")
+    @PreAuthorize("@securityService.esMiDocumento(#docId, authentication)")
+    public ResponseEntity<Resource> descargarDocumento(@PathVariable Long docId)
+            throws IOException {
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + dto.getNombreArchivo() + "\""
-                    )
-                    .contentType(MediaType.parseMediaType(dto.getMimeType()))
-                    .contentLength(dto.getTamanioArchivo())
-                    .body(resource);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        DocumentoDTO dto = documentoService.buscarDocumentoPorId(docId);
+        Resource resource = fileService.getFileResource(docId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + dto.getNombreArchivo() + "\""
+                )
+                .contentType(MediaType.parseMediaType(dto.getMimeType()))
+                .contentLength(dto.getTamanioArchivo())
+                .body(resource);
+
     }
 
     @DeleteMapping("/{documentoId}")
@@ -80,25 +79,18 @@ public class DocumentoController {
     public ResponseEntity<DocumentoDTO> uploadDocument(
             @RequestParam("file") MultipartFile file,
             @RequestParam TipoDocumento tipoDocumento,
-            @RequestParam(required = false) Long operadorId,
-            @RequestParam(required = false) Long camionId){
-
-        try{
+            @RequestParam(required = false) Long idOperador,
+            @RequestParam(required = false) Long idCamion) throws IOException {
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(
                             this.fileService.uploadFile(file,
                                                         tipoDocumento,
-                                                        operadorId,
-                                                        camionId)
+                                                        idOperador,
+                                                        idCamion)
                     );
 
 
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
 
     }
 

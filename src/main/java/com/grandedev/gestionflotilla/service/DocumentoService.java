@@ -1,11 +1,9 @@
 package com.grandedev.gestionflotilla.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 
+import com.grandedev.gestionflotilla.exception.ResourceNotFoundException;
 import com.grandedev.gestionflotilla.fileManager.LocalFileStorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -39,7 +37,7 @@ public class DocumentoService implements IDocumentoService{
     private Documento buscarDocumentoEntidadPorId(Long id) {
         return this.documentoRepository
             .findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("Documento con id: " + id + " no ha sido encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Documento con id: " + id + " no ha sido encontrado"));
     }
 
     @Override
@@ -62,7 +60,7 @@ public class DocumentoService implements IDocumentoService{
     public List<DocumentoDTO> listarDocumentosPorOperador(Long operadorId) {
         this.operadorRepository
             .findById(operadorId)
-            .orElseThrow(() -> new IllegalArgumentException("Operador con id: " + operadorId + " no ha sido encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Operador con id: " + operadorId + " no ha sido encontrado"));
 
         return this.documentoRepository.findByOperadorId(operadorId).stream().map(Mapper::toDocumentoDTO).toList();
     }
@@ -71,7 +69,7 @@ public class DocumentoService implements IDocumentoService{
     public List<DocumentoDTO> listarDocumentoPorCamion(Long camionId) {
         this.camionRepository
             .findById(camionId)
-            .orElseThrow(() -> new IllegalArgumentException("Camion con id: " + camionId + " no ha sido encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Camion con id: " + camionId + " no ha sido encontrado"));
 
         return this.documentoRepository.findByCamionId(camionId).stream().map(Mapper::toDocumentoDTO).toList();
     }

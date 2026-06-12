@@ -12,8 +12,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.grandedev.gestionflotilla.model.Permission.OPERADOR_READ;
-import static com.grandedev.gestionflotilla.model.Permission.ADMIN_READ;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -26,8 +24,9 @@ public class SecurityConfig {
             "/api/v1/documentos/**",
             "/api/v1/operadores/**",
             "/api/v1/usuarios/**"};
-    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**"
-
+    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
+            "/swagger-ui/index.html",
+            "/swagger-ui.html"
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -41,8 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(POST, ADMIN_LIST_URL).hasRole("ADMIN")
                         .requestMatchers(PUT, ADMIN_LIST_URL).hasRole("ADMIN")
                         .requestMatchers(DELETE,ADMIN_LIST_URL).hasRole("ADMIN")
-                        .requestMatchers(GET, "/api/v1/documentos").hasAuthority(ADMIN_READ.name())
-                        .requestMatchers(GET,"/api/v1/documentos/operadores").hasAuthority(OPERADOR_READ.name())
+                        .requestMatchers(GET, ADMIN_LIST_URL).hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
                 )
