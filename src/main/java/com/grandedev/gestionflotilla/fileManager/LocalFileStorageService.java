@@ -52,6 +52,9 @@ public class LocalFileStorageService {
         Path filePath = rootPath.resolve(storedPath).normalize().toAbsolutePath();
         Path normalizedRoot = rootPath.normalize().toAbsolutePath();
 
+        System.out.println(filePath);
+        System.out.println(normalizedRoot);
+
         if(!filePath.startsWith(normalizedRoot)){
             throw new SecurityException("Acceso denegado!!");
         }

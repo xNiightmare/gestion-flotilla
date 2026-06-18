@@ -50,7 +50,7 @@ public class DocumentoController {
     }
 
     @GetMapping("/{docId}/download")
-    @PreAuthorize("@securityService.esMiDocumento(#docId, authentication)")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.esMiDocumento(#docId, authentication)")
     public ResponseEntity<Resource> descargarDocumento(@PathVariable Long docId)
             throws IOException {
 
