@@ -20,6 +20,7 @@ public class AuthService{
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Este endpoint queda protegido para ADMIN; el registro publico queda deshabilitado desde SecurityConfig.
         if (usuarioRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException("Nombre de usuario NO disponible. Intenta con otro.");
         }

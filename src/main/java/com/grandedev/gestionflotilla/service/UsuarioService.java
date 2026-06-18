@@ -61,6 +61,7 @@ public class UsuarioService implements IUsuarioService {
     public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
         Usuario usuario = this.buscarUsuarioEntidadPorId(id);
         usuario.setUsername(usuarioRequestDTO.getUsername());
+        usuario.setEmail(usuarioRequestDTO.getEmail());
         asignarRelacion(usuario, usuarioRequestDTO.getIdOperador());
         usuario.setRol(usuarioRequestDTO.getRol());
 

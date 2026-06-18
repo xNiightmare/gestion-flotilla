@@ -3,6 +3,7 @@ package com.grandedev.gestionflotilla.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 import static org.springframework.http.HttpMethod.*;
 
@@ -24,7 +30,7 @@ public class SecurityConfig {
             "/api/v1/documentos/**",
             "/api/v1/operadores/**",
             "/api/v1/usuarios/**"};
-    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/**",
+    private static final String[] WHITE_LIST_URL = {"/api/v1/auth/authenticate",
             "/swagger-ui/index.html",
             "/swagger-ui.html"
     };
@@ -34,9 +40,11 @@ public class SecurityConfig {
     @Bean 
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         return http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable) //Se cambio csrf -> csrf.disable()
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll()
+                        .requestMatchers(POST, "/api/v1/auth/register").hasRole("ADMIN")
                         .requestMatchers(POST, ADMIN_LIST_URL).hasRole("ADMIN")
                         .requestMatchers(PUT, ADMIN_LIST_URL).hasRole("ADMIN")
                         .requestMatchers(DELETE,ADMIN_LIST_URL).hasRole("ADMIN")
@@ -50,6 +58,19 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setExposedHeaders(List.of("Content-Disposition"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }
