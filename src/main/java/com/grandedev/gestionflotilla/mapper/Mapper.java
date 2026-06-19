@@ -49,6 +49,7 @@ public class Mapper {
             .nombreArchivo(documento.getNombreArchivo())
             .rutaArchivo(documento.getRutaArchivo())
             .fechaSubida(documento.getFechaSubida())
+            .fechaVencimiento(documento.getFechaVencimiento())
             .tamanioArchivo(documento.getTamanioArchivo()) //En el DocumentoService??
             .mimeType(documento.getMimeType()) //En el DocumentoService??
             .idOperador(documento.getOperador() != null ? documento.getOperador().getId() : null)
@@ -67,6 +68,7 @@ public class Mapper {
             .nombreArchivo(documentoDTO.getNombreArchivo())
             .rutaArchivo(documentoDTO.getRutaArchivo())
             .fechaSubida(documentoDTO.getFechaSubida())
+            .fechaVencimiento(documentoDTO.getFechaVencimiento())
             .tamanioArchivo(documentoDTO.getTamanioArchivo())
             .mimeType(documentoDTO.getMimeType())
             .build();

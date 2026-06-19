@@ -1,6 +1,7 @@
 package com.grandedev.gestionflotilla.controller;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.grandedev.gestionflotilla.fileManager.FileService;
@@ -80,14 +81,16 @@ public class DocumentoController {
             @RequestParam("file") MultipartFile file,
             @RequestParam TipoDocumento tipoDocumento,
             @RequestParam(required = false) Long idOperador,
-            @RequestParam(required = false) Long idCamion) throws IOException {
+            @RequestParam(required = false) Long idCamion,
+            @RequestParam(required = false) LocalDate fechaVencimiento) throws IOException {
 
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(
                             this.fileService.uploadFile(file,
                                                         tipoDocumento,
                                                         idOperador,
-                                                        idCamion)
+                                                        idCamion,
+                                                        fechaVencimiento)
                     );
 
 

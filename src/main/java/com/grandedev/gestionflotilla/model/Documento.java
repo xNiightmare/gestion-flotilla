@@ -1,5 +1,6 @@
 package com.grandedev.gestionflotilla.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
@@ -38,6 +39,8 @@ public class Documento {
     private String rutaArchivo;
 
     private LocalDateTime fechaSubida;
+
+    private LocalDate fechaVencimiento;
 
     private Long tamanioArchivo;
 

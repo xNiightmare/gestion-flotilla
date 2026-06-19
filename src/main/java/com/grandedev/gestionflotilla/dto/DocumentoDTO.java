@@ -1,6 +1,6 @@
 package com.grandedev.gestionflotilla.dto;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.grandedev.gestionflotilla.model.TipoDocumento;
@@ -20,6 +20,7 @@ public class DocumentoDTO {
     private String nombreArchivo;
     private String rutaArchivo;
     private LocalDateTime fechaSubida;
+    private LocalDate fechaVencimiento;
     private Long tamanioArchivo;
     private String mimeType;
     private Long idOperador;

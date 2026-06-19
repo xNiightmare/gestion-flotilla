@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Service
 public class FileService {
@@ -41,7 +42,8 @@ public class FileService {
     public DocumentoDTO uploadFile(MultipartFile file,
                                    TipoDocumento tipoDocumento,
                                    Long operadorId,
-                                   Long camionId) throws IOException {
+                                   Long camionId,
+                                   LocalDate fechaVencimiento) throws IOException {
         validateFile(file);
 
         String storagePath;
@@ -54,6 +56,7 @@ public class FileService {
         documento.setNombreArchivo(file.getOriginalFilename());
         documento.setRutaArchivo(storagePath);
         documento.setFechaSubida(LocalDateTime.now());
+        documento.setFechaVencimiento(fechaVencimiento);
         documento.setTamanioArchivo(file.getSize());
         documento.setMimeType(file.getContentType());
         asignarRelaciones(documento, operadorId, camionId);
