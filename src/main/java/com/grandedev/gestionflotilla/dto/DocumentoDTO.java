@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import com.grandedev.gestionflotilla.model.TipoDocumento;
 
 import lombok.*;
-import org.jspecify.annotations.Nullable;
 
 @Getter @Setter
 @AllArgsConstructor
