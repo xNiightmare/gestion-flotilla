@@ -15,4 +15,5 @@ public class AuthenticationResponse {
     private String refreshToken;
     private String username;
     private String rol;
+    private Long idOperador;
 }

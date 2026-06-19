@@ -45,6 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         .requestMatchers(POST, "/api/v1/auth/register").hasRole("ADMIN")
+                        .requestMatchers(GET, "/api/v1/documentos/operadores/**").hasAnyRole("ADMIN", "OPERADOR")
+                        .requestMatchers(GET, "/api/v1/documentos/*/download").hasAnyRole("ADMIN", "OPERADOR")
                         .requestMatchers(POST, ADMIN_LIST_URL).hasRole("ADMIN")
                         .requestMatchers(PUT, ADMIN_LIST_URL).hasRole("ADMIN")
                         .requestMatchers(DELETE,ADMIN_LIST_URL).hasRole("ADMIN")

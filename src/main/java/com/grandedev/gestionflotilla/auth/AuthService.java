@@ -46,6 +46,7 @@ public class AuthService{
                 .refreshToken(refreshToken)
                 .username(user.getUsername())
                 .rol(user.getRol().name())
+                .idOperador(user.getOperador() != null ? user.getOperador().getId() : null)
                 .build();
     }
 
@@ -65,6 +66,7 @@ public class AuthService{
                 .refreshToken(refreshToken)
                 .username(user.getUsername())
                 .rol(user.getRol().name())
+                .idOperador(user.getOperador() != null ? user.getOperador().getId() : null)
                 .build();
     }
 }
