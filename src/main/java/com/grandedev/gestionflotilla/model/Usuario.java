@@ -36,6 +36,9 @@ public class Usuario implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Rol rol;
 
+    @Column(name = "telegram_chat_id")
+    private Long telegramChatId;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

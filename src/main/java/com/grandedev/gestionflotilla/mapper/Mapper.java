@@ -2,11 +2,7 @@ package com.grandedev.gestionflotilla.mapper;
 
 import java.util.stream.Collectors;
 
-import com.grandedev.gestionflotilla.dto.CamionDTO;
-import com.grandedev.gestionflotilla.dto.DocumentoDTO;
-import com.grandedev.gestionflotilla.dto.OperadorDTO;
-import com.grandedev.gestionflotilla.dto.UsuarioRequestDTO;
-import com.grandedev.gestionflotilla.dto.UsuarioResponseDTO;
+import com.grandedev.gestionflotilla.dto.*;
 import com.grandedev.gestionflotilla.model.Camion;
 import com.grandedev.gestionflotilla.model.Documento;
 import com.grandedev.gestionflotilla.model.Operador;
@@ -23,6 +19,16 @@ public class Mapper {
             .idOperador(usuario.getOperador() != null ? usuario.getOperador().getId() : null)
             .rol(usuario.getRol())
             .build();
+    }
+
+    public static UsuarioUpdateDTO toUsuarioUpdateDTO(Usuario usuario){
+        if(usuario == null) return null;
+
+        return  UsuarioUpdateDTO.builder()
+                .username(usuario.getUsername())
+                .idOperador(usuario.getOperador() != null ? usuario.getOperador().getId() : null)
+                .rol(usuario.getRol())
+                .build();
     }
 
     public static Usuario toUsuario(UsuarioRequestDTO usuarioRequestDTO) {

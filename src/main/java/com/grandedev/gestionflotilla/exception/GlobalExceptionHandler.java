@@ -121,6 +121,19 @@ public class GlobalExceptionHandler{
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(NotAllowedRole.class)
+    public ResponseEntity<CustomErrorResponse> handleNotAllowedRole(Exception ex){
+        ex.printStackTrace();
+
+        CustomErrorResponse errorResponse = new CustomErrorResponse(
+                417,
+                ex.getMessage(),
+                "El servidor se rehúsa a intentar hacer café con una tetera.",
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.EXPECTATION_FAILED);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomErrorResponse> handleGenericException(Exception ex) {
 

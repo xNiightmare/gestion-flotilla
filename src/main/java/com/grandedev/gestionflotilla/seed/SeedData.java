@@ -4,6 +4,7 @@ import com.grandedev.gestionflotilla.config.AdminSeedProperties;
 import com.grandedev.gestionflotilla.model.Rol;
 import com.grandedev.gestionflotilla.model.Usuario;
 import com.grandedev.gestionflotilla.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -17,6 +18,9 @@ public class SeedData implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final AdminSeedProperties seedProperties;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.telegram.chat-id}")
+    private Long chatId;
 
     public SeedData(UsuarioRepository usuarioRepository,
                     AdminSeedProperties seedProperties,
@@ -47,6 +51,7 @@ public class SeedData implements CommandLineRunner {
                             )
                     )
                     .email(seedProperties.getEmail())
+                    .telegramChatId(this.chatId)
                     .rol(Rol.ADMIN)
                     .build();
 

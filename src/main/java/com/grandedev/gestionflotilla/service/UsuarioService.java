@@ -2,11 +2,11 @@ package com.grandedev.gestionflotilla.service;
 
 import java.util.List;
 
-import com.grandedev.gestionflotilla.exception.EmailAlreadyExistsException;
-import com.grandedev.gestionflotilla.exception.ResourceNotFoundException;
-import com.grandedev.gestionflotilla.exception.UsernameAlreadyExistsException;
+import com.grandedev.gestionflotilla.dto.UsuarioUpdateDTO;
+import com.grandedev.gestionflotilla.exception.*;
 
 import com.grandedev.gestionflotilla.model.Operador;
+import com.grandedev.gestionflotilla.model.Rol;
 import com.grandedev.gestionflotilla.repository.OperadorRepository;
 import com.grandedev.gestionflotilla.resetPassword.ResetPasswordDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -58,18 +58,17 @@ public class UsuarioService implements IUsuarioService {
     }
 
     @Override
-    public UsuarioResponseDTO actualizarUsuario(Long id, UsuarioRequestDTO usuarioRequestDTO) {
+    public UsuarioUpdateDTO actualizarUsuario(Long id, UsuarioUpdateDTO usuarioUpdateDTO) {
+
         Usuario usuario = this.buscarUsuarioEntidadPorId(id);
-        usuario.setUsername(usuarioRequestDTO.getUsername());
-        usuario.setEmail(usuarioRequestDTO.getEmail());
-        asignarRelacion(usuario, usuarioRequestDTO.getIdOperador());
-        usuario.setRol(usuarioRequestDTO.getRol());
+        if (usuario.getRol() == Rol.ADMIN && usuario.getOperador().getId() != null)
+            throw new NotAllowedRole("!!!");
 
-        if (usuarioRequestDTO.getPassword() != null && !usuarioRequestDTO.getPassword().isBlank()) {
-            usuario.setPassword(passwordEncoder.encode(usuarioRequestDTO.getPassword()));
-        }
+        usuario.setUsername(usuarioUpdateDTO.getUsername());
+        asignarRelacion(usuario, usuarioUpdateDTO.getIdOperador());
+        usuario.setRol(usuarioUpdateDTO.getRol());
 
-        return Mapper.toUsuarioResponseDTO(usuarioRepository.save(usuario));
+        return Mapper.toUsuarioUpdateDTO(usuarioRepository.save(usuario));
     }
 
     @Override
