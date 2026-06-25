@@ -21,9 +21,8 @@ public class TelegramNotificationService implements NotificationService {
     public final RestClient restClient;
     public final String botToken;
 
-    public TelegramNotificationService(RestClient.Builder builder,
-                                       @Value("${app.telegram.bot-token}") String botToken){
-        this.restClient = builder.build();
+    public TelegramNotificationService(@Value("${app.telegram.bot-token}") String botToken){
+        this.restClient = RestClient.create();
         this.botToken = botToken;
     }
 

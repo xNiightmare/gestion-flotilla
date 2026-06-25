@@ -4,6 +4,7 @@ import com.grandedev.gestionflotilla.config.AdminSeedProperties;
 import com.grandedev.gestionflotilla.model.Rol;
 import com.grandedev.gestionflotilla.model.Usuario;
 import com.grandedev.gestionflotilla.repository.UsuarioRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +21,7 @@ public class SeedData implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Value("${app.telegram.chat-id}")
-    private Long chatId;
+    private String chatId;
 
     public SeedData(UsuarioRepository usuarioRepository,
                     AdminSeedProperties seedProperties,
@@ -33,7 +34,7 @@ public class SeedData implements CommandLineRunner {
     }
 
     @Override
-    public void run(String ... args) throws Exception{
+    public void run(String @NonNull ... args) {
 
         logger.info("Iniciando siembra de datos \n");
         logger.info("Verificnado si existe admin principal");
@@ -51,12 +52,14 @@ public class SeedData implements CommandLineRunner {
                             )
                     )
                     .email(seedProperties.getEmail())
-                    .telegramChatId(this.chatId)
+                    .telegramChatId(this.chatId.isBlank() ? null : Long.valueOf(chatId))
                     .rol(Rol.ADMIN)
                     .build();
 
             usuarioRepository.save(admin);
             logger.info("Usuario administrador sembrado con exito");
+            System.out.println("Usuario administrador sembrado con exito");
+            System.out.println("Telegram Chat ID: " + admin.getTelegramChatId());
         }
         else {
             logger.info("Ya hay un usuario principal administrador");
