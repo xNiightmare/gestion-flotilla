@@ -28,6 +28,7 @@ public class Mapper {
                 .username(usuario.getUsername())
                 .idOperador(usuario.getOperador() != null ? usuario.getOperador().getId() : null)
                 .rol(usuario.getRol())
+                .telegramChatId(usuario.getTelegramChatId())
                 .build();
     }
 
@@ -41,6 +42,7 @@ public class Mapper {
             .email(usuarioRequestDTO.getEmail())
             .password(usuarioRequestDTO.getPassword())
             .rol(usuarioRequestDTO.getRol())
+            .telegramChatId(usuarioRequestDTO.getTelegramChatId())
             .build();
     }
 

@@ -25,4 +25,6 @@ public class UsuarioRequestDTO {
 
     @NotNull(message = "El ROL es necesario")
     private Rol rol; //o con string, dependiendo de cómo quieras manejarlo en el DTO
+
+    private Long telegramChatId;
 }
